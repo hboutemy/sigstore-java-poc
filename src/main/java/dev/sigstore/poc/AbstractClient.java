@@ -18,6 +18,7 @@ public class AbstractClient {
     public boolean sslVerfication = true;
 
     public void info(String msg) {
+      System.out.print(String.format("%-12s > ",this.getClass().getName().substring(17)));
       System.out.println(msg);
     }
     
@@ -58,6 +59,15 @@ public class AbstractClient {
         sig.update(content);
       return Base64.getEncoder().encodeToString(sig.sign());
   }
+
+    public String signEmailAddress(String emailAddress, PrivateKey privKey) throws GeneralSecurityException {
+        if (emailAddress == null) {
+            throw new IllegalArgumentException("email address must not be null");
+        }
+
+        info(String.format("signing email address '%s' as proof of possession of private key", emailAddress));
+        return signContent(emailAddress.getBytes(), privKey);
+    }
 
 
 }

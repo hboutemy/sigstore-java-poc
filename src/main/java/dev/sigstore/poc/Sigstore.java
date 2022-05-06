@@ -30,11 +30,14 @@ public class Sigstore extends AbstractClient {
     public void sign(File binary) throws GeneralSecurityException, IOException {
         KeyPair keypair = generateKeyPair();
 
-        CertPath certs = getFulcioCert(keypair);
-        //writeSigningCertToFile(certs, new File(binary.getParentFile(), binary.getName() + ".pem"));
-
+        info(String.format("signing file content %s", binary.toString()));
         byte[] content = Files.readAllBytes(binary.toPath());
         String signature = signContent(content, keypair.getPrivate());
+
+        info("time to record the signature");
+
+        CertPath certs = getFulcioCert(keypair);
+        //writeSigningCertToFile(certs, new File(binary.getParentFile(), binary.getName() + ".pem"));
 
         RekorClient rekorClient = new RekorClient();
         rekorClient.submitToRekor(content, signature, keypair.getPublic());
@@ -54,7 +57,7 @@ public class Sigstore extends AbstractClient {
     
         FulcioClient fulcioClient = new FulcioClient();
         // sign email address with private key
-        String signedEmail = fulcioClient.signEmailAddress(oidcClient.emailAddress, keypair.getPrivate());
+        String signedEmail = signEmailAddress(oidcClient.emailAddress, keypair.getPrivate());
     
         // push to fulcio, get signing cert chain
         CertPath certs = fulcioClient.getSigningCert(signedEmail, keypair.getPublic(), rawIdToken);

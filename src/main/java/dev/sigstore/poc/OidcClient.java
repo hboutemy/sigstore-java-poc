@@ -30,7 +30,7 @@ public class OidcClient extends AbstractClient {
 
     public URL oidcTokenURL = toURL("https://oauth2.sigstore.dev/auth/token");
 
-    public URL oidcDeviceCodeURL = toURL("https://oauth2.sigstore.dev/auth/auth/device/code");
+    //public URL oidcDeviceCodeURL = toURL("https://oauth2.sigstore.dev/auth/auth/device/code");
 
     public String emailAddress;
 
@@ -46,6 +46,7 @@ public class OidcClient extends AbstractClient {
         final String idTokenKey = "id_token";
 
         if (!oidcDeviceCodeFlow) {
+            info(String.format("getting OIDC token from %s with auth %s", oidcTokenURL.toString(), oidcAuthURL.toString()));
             AuthorizationCodeFlow.Builder flowBuilder = new AuthorizationCodeFlow.Builder(
                     BearerToken.authorizationHeaderAccessMethod(), httpTransport, jsonFactory,
                     new GenericUrl(oidcTokenURL.toString()), new ClientParametersAuthentication(oidcClientID, null),
@@ -84,7 +85,9 @@ public class OidcClient extends AbstractClient {
                     String.format("identity provider '%s' reports email address '%s' has not been verified",
                             parsedIdToken.getPayload().getIssuer(), emailAddress));
         }
-        this.emailAddress = emailFromIDToken;
+        emailAddress = emailFromIDToken;
+
+        info(String.format("received token for email %s", emailAddress));
 
         return idTokenString;
     }

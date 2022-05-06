@@ -22,7 +22,7 @@ import com.google.api.client.json.gson.GsonFactory;
 public class RekorClient extends AbstractClient {
     public URL rekorInstanceURL = toURL("https://rekor.sigstore.dev");
 
-    public URL tsaURL = toURL("https://rekor.sigstore.dev/api/v1/timestamp");
+    //public URL tsaURL = toURL("https://rekor.sigstore.dev/api/v1/timestamp");
 
     public boolean rekord;
 

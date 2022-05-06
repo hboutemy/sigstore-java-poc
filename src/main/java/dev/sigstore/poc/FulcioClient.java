@@ -5,8 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.security.GeneralSecurityException;
-import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.CertPath;
 import java.security.cert.CertificateException;
@@ -28,15 +26,6 @@ import com.google.api.client.util.PemReader.Section;
 
 public class FulcioClient extends AbstractClient {
     public URL fulcioInstanceURL = toURL("https://fulcio.sigstore.dev");
-
-    public String signEmailAddress(String emailAddress, PrivateKey privKey) throws GeneralSecurityException {
-        if (emailAddress == null) {
-            throw new IllegalArgumentException("email address must not be null");
-        }
-  
-        info(String.format("signing email address '%s' as proof of possession of private key", emailAddress));
-        return signContent(emailAddress.getBytes(), privKey);
-    }
 
     public CertPath getSigningCert(String signedEmail, PublicKey pubKey, String idToken) throws IOException, CertificateException {
         HttpTransport httpTransport = getHttpTransport();
@@ -62,7 +51,7 @@ public class FulcioClient extends AbstractClient {
         req.getHeaders().set("Accept", "application/pem-certificate-chain");
         req.getHeaders().set("Authorization", "Bearer " + idToken);
 
-        info("requesting signing certificate");
+        info(String.format("requesting signing certificate from %s", fulcioPostUrl.toString()));
         HttpResponse resp = req.execute();
         if (resp.getStatusCode() != 201) {
             throw new IOException(
