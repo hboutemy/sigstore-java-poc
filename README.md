@@ -5,7 +5,7 @@ Simple Java PoC code to implement sigstore operations equivalent to `cosign sign
 
 ## Build
 
-Require Java 11
+Require Java 8
 
 ```
 mvn package

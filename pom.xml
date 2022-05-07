@@ -33,7 +33,9 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.release>11</maven.compiler.release>
+    <target.jdk>8</target.jdk>
+    <maven.compiler.source>1.${target.jdk}</maven.compiler.source>
+    <maven.compiler.target>1.${target.jdk}</maven.compiler.target>
   </properties>
 
   <dependencies>
@@ -126,4 +128,16 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>jep-247</id>
+      <activation>
+        <jdk>[9,)</jdk>
+      </activation>
+      <properties>
+        <maven.compiler.release>${target.jdk}</maven.compiler.release>
+      </properties>
+    </profile>
+  </profiles>
 </project>

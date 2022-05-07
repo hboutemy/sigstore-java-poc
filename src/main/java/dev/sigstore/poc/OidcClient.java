@@ -3,7 +3,7 @@ package dev.sigstore.poc;
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.net.URL;
-import java.util.List;
+import java.util.Arrays;
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
 import com.google.api.client.auth.oauth2.BearerToken;
@@ -52,7 +52,7 @@ public class OidcClient extends AbstractClient {
                     new GenericUrl(oidcTokenURL.toString()), new ClientParametersAuthentication(oidcClientID, null),
                     oidcClientID, oidcAuthURL.toString())
                     .enablePKCE()
-                    .setScopes(List.of("openid", "email"))
+                    .setScopes(Arrays.asList("openid", "email"))
                     .setCredentialCreatedListener(new AuthorizationCodeFlow.CredentialCreatedListener() {
                         @Override
                         public void onCredentialCreated(Credential credential, TokenResponse tokenResponse)
