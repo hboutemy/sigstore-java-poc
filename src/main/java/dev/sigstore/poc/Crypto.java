@@ -3,57 +3,26 @@ package dev.sigstore.poc;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.SecureRandom;
+import java.security.Signature;
 import java.security.cert.CertPath;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.ECGenParameterSpec;
 import java.util.Base64;
 
-public class Sigstore extends AbstractClient {
+public class Crypto extends AbstractClient {
+    public String signingAlgorithm = "EC";
 
-    /**
-     * All in one file signing with Sigstore.
-     * 
-     * @param binary the file to sign
-     * @throws GeneralSecurityException
-     * @throws IOException
-     */
-    public void sign(File binary) throws GeneralSecurityException, IOException {
-        KeyPair keypair = new Crypto().generateKeyPair();
+    public String signingAlgorithmSpec = "secp256r1";
 
-        byte[] content = Files.readAllBytes(binary.toPath());
-        String signature = new Crypto().signFileContent(binary, content, keypair.getPrivate());
-
-        info("Starting sigstore steps to record the signature");
-
-        CertPath certs = getFulcioCert(keypair);
-        //new Crypto().writeSigningCertToFile(certs, new File(binary.getParentFile(), binary.getName() + ".pem"));
-
-        RekorClient rekorClient = new RekorClient();
-        rekorClient.submitToRekor(content, signature, keypair.getPublic());
-    }
-
-
-    public CertPath getFulcioCert(KeyPair keypair) throws GeneralSecurityException, IOException {
-        OidcClient oidcClient = new OidcClient();
-
-        // do OIDC dance, get ID token
-        String rawIdToken = oidcClient.getIDToken();
-    
-        FulcioClient fulcioClient = new FulcioClient();
-        // sign email address with private key
-        String signedEmail = new Crypto().signEmailAddress(oidcClient.emailAddress, keypair.getPrivate());
-    
-        // push to fulcio, get signing cert chain
-        CertPath certs = fulcioClient.getSigningCert(signedEmail, keypair.getPublic(), rawIdToken);
-    
-        return certs;
+    public KeyPair generateKeyPair() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException {
+        return generateKeyPair(signingAlgorithm, signingAlgorithmSpec);
     }
 
 
@@ -74,6 +43,41 @@ public class Sigstore extends AbstractClient {
         return kpg.generateKeyPair();
     }
 
+    public String signContent(byte[] content, PrivateKey privKey) throws GeneralSecurityException {
+        if (privKey == null) {
+            throw new IllegalArgumentException("private key must be specified");
+        }
+        if (content == null) {
+            throw new IllegalArgumentException("content must not be null");
+        }
+
+        Signature sig = null;
+        switch (privKey.getAlgorithm()) {
+        case "EC":
+            sig = Signature.getInstance("SHA256withECDSA");
+            break;
+        default:
+            throw new NoSuchAlgorithmException(
+                    String.format("unable to generate signature for signing algorithm %s", privKey.getAlgorithm()));
+        }
+        sig.initSign(privKey);
+        sig.update(content);
+        return Base64.getEncoder().encodeToString(sig.sign());
+    }
+
+    public String signFileContent(File file, byte[] content, PrivateKey privKey) throws GeneralSecurityException {
+        info(String.format("signing file content %s", file.toString()));
+        return signContent(content, privKey);
+    }
+
+    public String signEmailAddress(String emailAddress, PrivateKey privKey) throws GeneralSecurityException {
+        if (emailAddress == null) {
+            throw new IllegalArgumentException("email address must not be null");
+        }
+
+        info(String.format("signing email address '%s' as proof of possession of private key", emailAddress));
+        return signContent(emailAddress.getBytes(), privKey);
+    }
 
     public void writeSigningCertToFile(CertPath certs, File outputSigningCert) throws IOException, GeneralSecurityException {
         info("writing signing certificate to " + outputSigningCert.getAbsolutePath());
