@@ -2,7 +2,8 @@ sigstore Java PoC
 =======
 
 Simple Java PoC code (extracted from [sigstore-maven-plugin PoC](https://github.com/sigstore/sigstore-maven-plugin/pull/85))
-to implement sigstore operations equivalent to `cosign sign-blob`, then be able to test it in any situation.
+to implement sigstore operations equivalent to [`cosign sign-blob` in keyless mode](https://docs.sigstore.dev/cosign/working_with_blobs/#signing-blobs-as-files),
+then be able to test it in any situation.
 
 ## Build
 
