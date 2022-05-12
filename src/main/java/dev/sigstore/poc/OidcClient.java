@@ -46,7 +46,7 @@ public class OidcClient extends AbstractClient {
         final String idTokenKey = "id_token";
 
         if (!oidcDeviceCodeFlow) {
-            info(String.format("getting OIDC token from %s with auth %s", oidcTokenURL.toString(), oidcAuthURL.toString()));
+            info(String.format(">> getting OIDC token from %s with auth %s", oidcTokenURL.toString(), oidcAuthURL.toString()));
             AuthorizationCodeFlow.Builder flowBuilder = new AuthorizationCodeFlow.Builder(
                     BearerToken.authorizationHeaderAccessMethod(), httpTransport, jsonFactory,
                     new GenericUrl(oidcTokenURL.toString()), new ClientParametersAuthentication(oidcClientID, null),
@@ -87,7 +87,7 @@ public class OidcClient extends AbstractClient {
         }
         emailAddress = emailFromIDToken;
 
-        info(String.format("received token for email %s", emailAddress));
+        info(String.format("<< received token for email %s", emailAddress));
 
         return idTokenString;
     }

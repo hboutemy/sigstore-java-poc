@@ -38,7 +38,7 @@ public class RekorClient extends AbstractClient {
 
         ByteArrayOutputStream rekorStream = new ByteArrayOutputStream();
         rekorJsonContent.writeTo(rekorStream);
-        info("submitting to rekor: " + rekorStream.toString());
+        info(">> submitting to rekor " + rekorInstanceURL + " with payload " + rekorStream.toString());
 
         GenericUrl rekorPostUrl = new GenericUrl(rekorInstanceURL + "/api/v1/log/entries");
         HttpRequest rekorReq = httpTransport.createRequestFactory().buildPostRequest(rekorPostUrl, rekorJsonContent);
@@ -52,7 +52,7 @@ public class RekorClient extends AbstractClient {
         }
 
         URL rekorEntryUrl = new URL(rekorInstanceURL, rekorResp.getHeaders().getLocation());
-        info(String.format("Created %s entry in transparency log @ '%s'", kind, rekorEntryUrl));
+        info(String.format("<< Created %s entry in transparency log @ '%s'", kind, rekorEntryUrl));
         return rekorEntryUrl;
     }
 

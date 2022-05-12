@@ -13,7 +13,7 @@ public class AbstractClient {
     public boolean sslVerfication = true;
 
     public void info(String msg) {
-      System.out.print(String.format("%-12s > ",this.getClass().getName().substring(17)));
+      System.out.print(String.format("\033[1m%s\033[0m ",this.getClass().getName().substring(17)));
       System.out.println(msg);
     }
     
