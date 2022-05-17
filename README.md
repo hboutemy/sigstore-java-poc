@@ -43,6 +43,33 @@ RekorClient >> submitting to rekor https://rekor.sigstore.dev with payload {"api
 RekorClient << Created hashedrekord entry in transparency log @ 'https://rekor.sigstore.dev/api/v1/log/entries/024908dcab6ac9602ce1c3da1adf1fdeb2b7de86b8e3c010bf4c4cdf3d7ec046'
 ```
 
+### Running against a directory
+
+If you point to a directory instead of a file, the key pair will be used to sign every file found recursively and each signature will be recorded in sigstore:
+
+```
+❯ java -jar target/sigstore-poc-0.1.0-SNAPSHOT.jar src
+Crypto generating keypair using EC with secp256r1 parameters
+signing 7 files
+signed 26832 bytes, created 7 .sig signature files for 672 bytes = 96 bytes per sig
+Recording signatures to sigstore...
+press ENTER to get Fulcio certificate:
+OidcClient >> getting OIDC token from https://oauth2.sigstore.dev/auth/token with auth https://oauth2.sigstore.dev/auth/auth
+Please open the following address in your browser:
+  https://oauth2.sigstore.dev/auth/auth?client_id=sigstore&code_challenge=WcMI_quzd2icY9soD41y_JuzBAvplWmWcX3ED_kOuXU&code_challenge_method=S256&redirect_uri=http://localhost:56851/Callback&response_type=code&scope=openid%20email
+Attempting to open that address in the default browser now...
+OidcClient << received token for email herve.boutemy@gmail.com
+Crypto signing email address 'herve.boutemy@gmail.com' as proof of possession of private key
+FulcioClient >> requesting signing certificate from https://fulcio.sigstore.dev/api/v1/signingCert
+FulcioClient << parsing signing certificate
+Crypto writing signing certificate to /Users/hboutemy/dev/workspace/sigstore-poc/src/signing-certificate.pem
+press ENTER to get 7 Rekor entries for previous signatures:
+RekorClient >> submitting to rekor https://rekor.sigstore.dev with payload {"apiVersion":"0.0.1","kind":"hashedrekord","spec":{"data":{"hash":{"value":"ca882bac39e1ae2399285495105626538a227a41073620c4653e1fe24ec03435","algorithm":"sha256"}},"signature":{"publicKey":{"content":"LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZrd0V3WUhLb1pJemowQ0FRWUlLb1pJemowREFRY0RRZ0FFOEZIb0VrOE5WSWVSNmMvTE1lS3JvcE4zeWs0WQpVcTZzMjUydEdKTmEzUDJKWUw2L2RXQ1U4bDB0YkVrK3lVb00ycVVIRGYzS21kVzVrTWFFY256TU13PT0KLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0t"},"content":"MEQCIGN/z6q/ErSW4+VgB1uRd5r2/cThm0eqW/4HM1pqUUD6AiBQCJ83loT4h7GmNOLWLgQQzDvQVags+/24mb/phD3rMQ=="}}}
+RekorClient << Created hashedrekord entry in transparency log @ 'https://rekor.sigstore.dev/api/v1/log/entries/d24599fd16dd287a6dd2e7897a40df506956d4b62b42b84591f3e109acf2da30'
+[...]
+created 7 rekor entries, saved in .rekor files for 13567 bytes = 1938 bytes per rekor entry
+```
+
 ### JShell Interactive Discovery
 
 You may also load the jar with `jshell` to do interactive test of either a basic file signature or more step by step usage for every sigstore piece:

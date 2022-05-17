@@ -56,12 +56,12 @@ public class RekorClient extends AbstractClient {
         return rekorEntryUrl;
     }
 
-    public URL submitToRekor(byte[] content, String signature, PublicKey publicKey) throws IOException {
+    private URL submitToRekor(String sha256, byte[] content, String signature, PublicKey publicKey) throws IOException {
         // https://github.com/sigstore/rekor/blob/main/pkg/types/hashedrekord/v0.0.1/hashedrekord_v0_0_1_schema.json
         // https://github.com/sigstore/rekor/blob/main/pkg/types/rekord/v0.0.1/rekord_v0_0_1_schema.json
         Map<String, Object> hashContent = new HashMap<>();
         hashContent.put("algorithm", "sha256");
-        hashContent.put("value", new DigestUtils(SHA_256).digestAsHex(content));
+        hashContent.put("value", sha256);
 
         Map<String, Object> dataContent = new HashMap<>();
         dataContent.put("hash", hashContent);
@@ -92,5 +92,13 @@ public class RekorClient extends AbstractClient {
         specContent.put("data", dataContent);
 
         return submitToRekor(rekord ? "rekord" : "hashedrekord", specContent);
+    }
+
+    public URL submitToRekor(byte[] content, String signature, PublicKey publicKey) throws IOException {
+        return submitToRekor(new DigestUtils(SHA_256).digestAsHex(content), content, signature, publicKey);
+    }
+
+    public URL submitToRekor(String sha256, String signature, PublicKey publicKey) throws IOException {
+        return submitToRekor(sha256, null, signature, publicKey);
     }
 }

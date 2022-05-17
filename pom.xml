@@ -16,10 +16,6 @@
     </license>
   </licenses>
 
-  <prerequisites>
-    <maven>${maven.version}</maven>
-  </prerequisites>
-
   <scm>
     <connection>scm:git:https://github.com/hboutemy/sigstore-java-poc.git</connection>
     <developerConnection>scm:git:https://github.com/hboutemy/sigstore-java-poc.git</developerConnection>
