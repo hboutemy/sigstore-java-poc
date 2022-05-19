@@ -33,25 +33,21 @@ public class Sigstore extends AbstractClient {
         info("Starting sigstore steps to record the signature");
 
         CertPath certs = getFulcioCert(keypair);
-        //new Crypto().writeSigningCertToFile(certs, new File(binary.getParentFile(), binary.getName() + ".pem"));
+        new Crypto().writeSigningCertToFile(certs, new File(binary.getParentFile(), binary.getName() + ".pem"));
 
-        RekorClient rekorClient = new RekorClient();
-        rekorClient.submitToRekor(content, signature, keypair.getPublic());
+        new RekorClient().submitToRekor(content, signature, keypair.getPublic());
     }
 
 
     public CertPath getFulcioCert(KeyPair keypair) throws GeneralSecurityException, IOException {
         OidcClient oidcClient = new OidcClient();
-
-        // do OIDC dance, get ID token
-        String rawIdToken = oidcClient.getIDToken();
+        String rawIdToken = oidcClient.getIDToken(); // do OIDC dance, get ID token and email
     
-        FulcioClient fulcioClient = new FulcioClient();
         // sign email address with private key
         String signedEmail = new Crypto().signEmailAddress(oidcClient.emailAddress, keypair.getPrivate());
     
         // push to fulcio, get signing cert chain
-        CertPath certs = fulcioClient.getSigningCert(signedEmail, keypair.getPublic(), rawIdToken);
+        CertPath certs = new FulcioClient().getSigningCert(signedEmail, keypair.getPublic(), rawIdToken);
     
         return certs;
     }

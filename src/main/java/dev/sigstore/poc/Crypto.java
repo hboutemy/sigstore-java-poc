@@ -92,10 +92,6 @@ public class Crypto extends AbstractClient {
                 + encodedCertText + System.lineSeparator()
                 + "-----END CERTIFICATE-----";
 
-        if (!outputSigningCert.createNewFile()) {
-            throw new IOException(String.format("file at %s already exists; will not overwrite",
-                    outputSigningCert.getAbsolutePath()));
-        }
         try (FileWriter fw = new FileWriter(outputSigningCert)) {
             fw.write(prettifiedCert);
         }
