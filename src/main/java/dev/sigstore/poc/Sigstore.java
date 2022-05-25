@@ -35,7 +35,7 @@ public class Sigstore extends AbstractClient {
         CertPath certs = getFulcioCert(keypair);
         new Crypto().writeSigningCertToFile(certs, new File(binary.getParentFile(), binary.getName() + ".pem"));
 
-        new RekorClient().submitToRekor(content, signature, keypair.getPublic());
+        new RekorClient().submitToRekor(content, signature, certs.getCertificates().get(0));
     }
 
 

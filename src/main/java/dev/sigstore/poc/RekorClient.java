@@ -6,6 +6,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.security.PublicKey;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,7 +58,7 @@ public class RekorClient extends AbstractClient {
         return rekorEntryUrl;
     }
 
-    private URL submitToRekor(String sha256, byte[] content, String signature, PublicKey publicKey) throws IOException {
+    private URL submitToRekor(String sha256, byte[] content, String signature, byte[] raw, String pem) throws IOException {
         // https://github.com/sigstore/rekor/blob/main/pkg/types/hashedrekord/v0.0.1/hashedrekord_v0_0_1_schema.json
         // https://github.com/sigstore/rekor/blob/main/pkg/types/rekord/v0.0.1/rekord_v0_0_1_schema.json
         Map<String, Object> hashContent = new HashMap<>();
@@ -70,13 +72,11 @@ public class RekorClient extends AbstractClient {
         }
 
         Map<String, Object> publicKeyContent = new HashMap<>();
-        byte[] rawKeyText = publicKey.getEncoded();
-
         Base64.Encoder encoder = Base64.getMimeEncoder(64, System.lineSeparator().getBytes());
-        String encodedKeyText = new String(encoder.encode(rawKeyText));
-        String prettifiedKey = "-----BEGIN PUBLIC KEY-----" + System.lineSeparator()
+        String encodedKeyText = new String(encoder.encode(raw));
+        String prettifiedKey = "-----BEGIN " + pem + "-----" + System.lineSeparator()
                 + encodedKeyText + System.lineSeparator()
-                + "-----END PUBLIC KEY-----";
+                + "-----END " + pem + "-----";
 
         publicKeyContent.put("content", Base64.getEncoder().encodeToString(prettifiedKey.getBytes()));
 
@@ -94,7 +94,23 @@ public class RekorClient extends AbstractClient {
         return submitToRekor(rekord ? "rekord" : "hashedrekord", specContent);
     }
 
-    public URL submitToRekor(byte[] content, String signature, PublicKey publicKey) throws IOException {
+    private URL submitToRekor(String sha256, byte[] content, String signature, Certificate certificate) throws IOException, CertificateEncodingException {
+        return submitToRekor(sha256, content, signature, certificate.getEncoded(), "CERTIFICATE");
+    }
+
+    public URL submitToRekor(byte[] content, String signature, Certificate certificate) throws IOException, CertificateEncodingException {
+        return submitToRekor(new DigestUtils(SHA_256).digestAsHex(content), content, signature, certificate);
+    }
+
+    public URL submitToRekor(String sha256, String signature, Certificate certificate) throws IOException, CertificateEncodingException {
+        return submitToRekor(sha256, null, signature, certificate);
+    }
+
+    private URL submitToRekor(String sha256, byte[] content, String signature, PublicKey publicKey) throws IOException {
+        return submitToRekor(sha256, content, signature, publicKey.getEncoded(), "PUBLIC KEY");
+    }
+
+    public URL submitToRekor(byte[] content, String signature, PublicKey publicKey) throws IOException, CertificateEncodingException {
         return submitToRekor(new DigestUtils(SHA_256).digestAsHex(content), content, signature, publicKey);
     }
 

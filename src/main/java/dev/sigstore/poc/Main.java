@@ -75,7 +75,7 @@ public class Main {
         RekorClient rekorClient = new RekorClient();
         long sizeRek = 0;
         for (SignedFile file: files) {
-            URL rekorEntry = rekorClient.submitToRekor(file.sha256, file.signature, keypair.getPublic());
+            URL rekorEntry = rekorClient.submitToRekor(file.sha256, file.signature, certs.getCertificates().get(0));
 
             // save Rekor entry to .rekor file
             File rek = new File(file.file.getParentFile(), file.file.getName() + ".rekor");
