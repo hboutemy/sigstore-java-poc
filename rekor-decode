@@ -1,0 +1,26 @@
+#!/bin/bash
+
+id=$1
+
+url=https://rekor.sigstore.dev/api/v1/log/entries/$id
+echo "$url"
+
+log=$(curl -s -X GET "$url")
+
+echo
+echo "Rekor log entry:"
+echo "$log" | jq
+
+echo
+echo "Rekor entry (= b64 decoded body):"
+entry="$(echo "$log" | jq -r '.[].body' | base64 -d)"
+echo "$entry" | jq
+
+echo
+echo "Public key pem (b64 decoded spec.signature.publicKey.content):"
+key="$(echo "$entry" | jq -r '.spec.signature.publicKey.content' | base64 -d)"
+echo "$key"
+
+echo
+echo "Decoded key/certificate:"
+echo "$key"  | openssl x509 -in - -text
