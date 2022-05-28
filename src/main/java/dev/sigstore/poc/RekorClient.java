@@ -94,6 +94,7 @@ public class RekorClient extends AbstractClient {
         return submitToRekor(rekord ? "rekord" : "hashedrekord", specContent);
     }
 
+    // see https://github.com/sigstore/rekor/issues/809
     private URL submitToRekor(String sha256, byte[] content, String signature, Certificate certificate) throws IOException, CertificateEncodingException {
         return submitToRekor(sha256, content, signature, certificate.getEncoded(), "CERTIFICATE");
     }
