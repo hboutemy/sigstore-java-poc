@@ -2,10 +2,11 @@
 
 # see also https://rekor.tlog.dev/
 
-id=$1
+uuid=$1
 
-url=https://rekor.sigstore.dev/api/v1/log/entries/$id
+url=https://rekor.sigstore.dev/api/v1/log/entries/$uuid
 echo "$url"
+echo "see https://rekor.tlog.dev/?uuid=$uuid"
 
 log=$(curl -s -X GET "$url")
 
