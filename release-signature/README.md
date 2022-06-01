@@ -30,6 +30,7 @@ To reduce the load on Rekor, we can instead create a release desciptor file that
 Pro: reduce drastically the load on Rekor: 1 unique entry, whatever the size of the project release
 
 Con: verifying only one file requires to get the full list of files from the release, which can be huge. And there is a question on at which coordinates to store the release descriptor.
+No way to search in Rekor for a jar sha256 and find the entry
 
 ### strategy #3: 1 signature per package
 
@@ -37,7 +38,8 @@ A descriptor file with filenames and sha256 can be created for each package (usu
 
 Pro: easy check of each file from a package, even if it's part of a large project release
 
-Con: for large project releases, this can still create near 1,000 Rekor entries
+Con: for large project releases, this can still create near 1,000 Rekor entries.
+No way to search in Rekor for a jar sha256 and find the entry
 
 ### strategy #4: 1 descriptor per package, referenced in signed release descriptor
 
@@ -47,7 +49,7 @@ Notice: need to add in each package descriptor the coordinates of the release de
 
 Pro: only 1 Rekor entry, and quite efficient verification of a file
 
-Con: 2 steps approach
+Con: 2 steps approach. No way to search in Rekor for a jar sha256 and find the entry
 
 
 ## Demo
