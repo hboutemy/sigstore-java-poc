@@ -19,9 +19,9 @@ With sigstore, each signature has to be certified by a Rekor entry.
 
 Default signature strategy is to sign each file separately, then have as many Rekor entries as there are files.
 
-Pro: as simple as current PGP
+Pro: as simple as current PGP, we can do it right now
 
-Con: for a large project release, this will create many 1,000's of Rekor entries, putting a high load on public Rekor instance
+Con: for a large project release, this will create many 1,000's of Rekor entries, putting a high load on public Rekor instance: is it a good idea to start doing this?
 
 ### strategy #2: 1 signature for the whole release
 
@@ -29,8 +29,11 @@ To reduce the load on Rekor, we can instead create a release desciptor file that
 
 Pro: reduce drastically the load on Rekor: 1 unique entry, whatever the size of the project release
 
-Con: verifying only one file requires to get the full list of files from the release, which can be huge. And there is a question on at which coordinates to store the release descriptor.
-No way to search in Rekor for a jar sha256 and find the entry
+Cons:
+- verifying only one file requires to get the full list of files from the release, which can be huge
+- there is a question on at which coordinates to store the release descriptor
+- no way to search in Rekor for a jar sha256 and find the entry
+- Rekor is ready to accept that, but we need to define a descriptor convention accepted by all JVM ecosystem
 
 ### strategy #3: 1 signature per package
 
@@ -38,8 +41,10 @@ A descriptor file with filenames and sha256 can be created for each package (usu
 
 Pro: easy check of each file from a package, even if it's part of a large project release
 
-Con: for large project releases, this can still create near 1,000 Rekor entries.
-No way to search in Rekor for a jar sha256 and find the entry
+Cons:
+- for large project releases, this can still create near 1,000 Rekor entries.
+- no way to search in Rekor for a jar sha256 and find the entry
+- Rekor is ready to accept that, but we need to define a descriptor convention accepted by all JVM ecosystem
 
 ### strategy #4: 1 descriptor per package, referenced in signed release descriptor
 
@@ -47,10 +52,26 @@ Creating a package descriptor like previous, then a release descriptor that list
 
 Notice: need to add in each package descriptor the coordinates of the release descriptor, to be able to find this release descriptor.
 
-Pro: only 1 Rekor entry, and quite efficient verification of a file
+Pros:
+- only 1 Rekor entry,
+- quite efficient verification of a file
 
-Con: 2 steps approach. No way to search in Rekor for a jar sha256 and find the entry
+Con:
+- 2 steps approach: more complex to specify, implement, run
+- no way to search in Rekor for a jar sha256 and find the entry
+- Rekor is ready to accept that, but we need to define 2 descriptors conventions accepted by all JVM ecosystem
 
+### strategy #5: add some `multihashrekord` type to Rekord
+
+With a new Rekor type that would accept multiple signatures in one payload, Rekor could crreate just one entry in the ledger that would 
+contain many files signatures: tracked as [Rekor #845 issue](https://github.com/sigstore/rekor/issues/845).
+
+Pros:
+- only 1 Rekor entry,
+- spec at Rekor type level, reusable for other needs
+
+Con:
+- Rekor is not ready to accept that
 
 ## Demo
 
