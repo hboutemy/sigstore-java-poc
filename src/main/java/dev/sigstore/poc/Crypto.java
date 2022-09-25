@@ -66,7 +66,7 @@ public class Crypto extends AbstractClient {
     }
 
     public String signFileContent(File file, byte[] content, PrivateKey privKey) throws GeneralSecurityException {
-        info(String.format("signing file content %s", file.toString()));
+        info(String.format("signing %s file content (%d bytes) with private key %s", file.toString(), file.length(), privKey));
         return signContent(content, privKey);
     }
 
@@ -75,25 +75,29 @@ public class Crypto extends AbstractClient {
             throw new IllegalArgumentException("email address must not be null");
         }
 
-        info(String.format("signing email address '%s' as proof of possession of private key", emailAddress));
+        info(String.format("signing email address '%s' as proof of possession of private key\n", emailAddress));
         return signContent(emailAddress.getBytes(), privKey);
     }
 
     public void writeSigningCertToFile(CertPath certs, File outputSigningCert) throws IOException, GeneralSecurityException {
         info("writing signing certificate to " + outputSigningCert.getAbsolutePath());
 
+        String prettifiedCert = prettifySigningCert(certs);
+
+        try (FileWriter fw = new FileWriter(outputSigningCert)) {
+            fw.write(prettifiedCert);
+        }
+    }
+
+    public String prettifySigningCert(CertPath certs) throws GeneralSecurityException {
         // we only write the first one, not the entire chain
         byte[] rawCrtText = certs.getCertificates().get(0).getEncoded();
 
         Base64.Encoder encoder = Base64.getMimeEncoder(64, System.lineSeparator().getBytes());
         String encodedCertText = new String(encoder.encode(rawCrtText));
 
-        String prettifiedCert = "-----BEGIN CERTIFICATE-----" + System.lineSeparator()
+        return "-----BEGIN CERTIFICATE-----" + System.lineSeparator()
                 + encodedCertText + System.lineSeparator()
                 + "-----END CERTIFICATE-----";
-
-        try (FileWriter fw = new FileWriter(outputSigningCert)) {
-            fw.write(prettifiedCert);
-        }
     }
 }

@@ -14,9 +14,16 @@ public class AbstractClient {
 
     public void info(String msg) {
       System.out.print(String.format("\033[1m%s\033[0m ",this.getClass().getName().substring(17)));
-      System.out.println(msg);
+      System.out.print(msg);
+      System.console().readLine();
     }
-    
+
+    public void output(String msg) {
+        System.out.print("> ");
+        System.out.print(msg);
+        System.console().readLine();
+    }
+
     public URL toURL(String url) {
         try {
             return new URL(url);

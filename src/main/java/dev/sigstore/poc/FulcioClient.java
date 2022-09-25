@@ -51,14 +51,14 @@ public class FulcioClient extends AbstractClient {
         req.getHeaders().set("Accept", "application/pem-certificate-chain");
         req.getHeaders().set("Authorization", "Bearer " + idToken);
 
-        info(String.format(">> requesting signing certificate from %s", fulcioPostUrl.toString()));
+        info(String.format(">> requesting signing certificate from %s for public key and signed email address", fulcioPostUrl.toString()));
         HttpResponse resp = req.execute();
         if (resp.getStatusCode() != 201) {
             throw new IOException(
                     String.format("bad response from fulcio @ '%s' : %s", fulcioPostUrl, resp.parseAsString()));
         }
 
-        info("<< parsing signing certificate");
+        info("<< parsing provided signing certificate");
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         ArrayList<X509Certificate> certList = new ArrayList<>();
         PemReader pemReader = new PemReader(new InputStreamReader(resp.getContent()));

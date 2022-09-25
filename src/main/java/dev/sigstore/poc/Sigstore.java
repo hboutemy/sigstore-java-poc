@@ -26,14 +26,16 @@ public class Sigstore extends AbstractClient {
      */
     public void sign(File binary) throws GeneralSecurityException, IOException {
         KeyPair keypair = new Crypto().generateKeyPair();
+        output(String.format("%s\n   - private: %s\n   - public: %s\n", keypair, keypair.getPrivate(), keypair.getPublic()));
 
         byte[] content = Files.readAllBytes(binary.toPath());
         String signature = new Crypto().signFileContent(binary, content, keypair.getPrivate());
+        output(String.format("%s\n", signature));
 
         info("Starting sigstore steps to record the signature");
 
         CertPath certs = getFulcioCert(keypair);
-        new Crypto().writeSigningCertToFile(certs, new File(binary.getParentFile(), binary.getName() + ".pem"));
+        //new Crypto().writeSigningCertToFile(certs, new File(binary.getParentFile(), binary.getName() + ".pem"));
 
         new RekorClient().submitToRekor(content, signature, certs.getCertificates().get(0));
     }
@@ -48,13 +50,14 @@ public class Sigstore extends AbstractClient {
     
         // push to fulcio, get signing cert chain
         CertPath certs = new FulcioClient().getSigningCert(signedEmail, keypair.getPublic(), rawIdToken);
-    
+
+        output(String.format("%s", new Crypto().prettifySigningCert(certs)));
         return certs;
     }
 
 
     public KeyPair generateKeyPair(String signingAlgorithm, String signingAlgorithmSpec) throws InvalidAlgorithmParameterException, NoSuchAlgorithmException {
-        info(String.format("generating keypair using %s with %s parameters", signingAlgorithm,
+        info(String.format("generating keypair using '%s' algorithm with '%s' parameter", signingAlgorithm,
                 signingAlgorithmSpec));
         KeyPairGenerator kpg = KeyPairGenerator.getInstance(signingAlgorithm);
         AlgorithmParameterSpec aps = null;
@@ -68,28 +71,5 @@ public class Sigstore extends AbstractClient {
         }
         kpg.initialize(aps, new SecureRandom());
         return kpg.generateKeyPair();
-    }
-
-
-    public void writeSigningCertToFile(CertPath certs, File outputSigningCert) throws IOException, GeneralSecurityException {
-        info("writing signing certificate to " + outputSigningCert.getAbsolutePath());
-
-        // we only write the first one, not the entire chain
-        byte[] rawCrtText = certs.getCertificates().get(0).getEncoded();
-
-        Base64.Encoder encoder = Base64.getMimeEncoder(64, System.lineSeparator().getBytes());
-        String encodedCertText = new String(encoder.encode(rawCrtText));
-
-        String prettifiedCert = "-----BEGIN CERTIFICATE-----" + System.lineSeparator()
-                + encodedCertText + System.lineSeparator()
-                + "-----END CERTIFICATE-----";
-
-        if (!outputSigningCert.createNewFile()) {
-            throw new IOException(String.format("file at %s already exists; will not overwrite",
-                    outputSigningCert.getAbsolutePath()));
-        }
-        try (FileWriter fw = new FileWriter(outputSigningCert)) {
-            fw.write(prettifiedCert);
-        }
     }
 }
