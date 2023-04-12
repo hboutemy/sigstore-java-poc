@@ -14,19 +14,19 @@ public class Main {
 
         var signer = KeylessSigner.builder().sigstorePublicDefaults().build();
         var result = signer.signFile(Paths.get(filename));
-        
+
         // resulting signature information
-        
+
         // artifact digest
         byte[] digest = result.getDigest();
-        
+
         // certificate from fulcio
         CertPath certs = result.getCertPath(); // java representation of a certificate path
         byte[] certsBytes = Certificates.toPemBytes(result.getCertPath()); // converted to PEM encoded byte array
-        
+
         // artifact signature
         byte[] sig = result.getSignature();
-        
+
         // sigstore bundle format (json string)
         String bundle = BundleFactory.createBundle(result);
 
