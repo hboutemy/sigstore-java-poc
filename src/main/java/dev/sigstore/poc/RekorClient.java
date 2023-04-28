@@ -55,7 +55,7 @@ public class RekorClient extends AbstractClient {
 
         URL rekorEntryUrl = new URL(rekorInstanceURL, rekorResp.getHeaders().getLocation());
         String uuid = rekorEntryUrl.getPath().substring(rekorEntryUrl.getPath().lastIndexOf('/') + 1);
-        info(String.format("<< Created %s entry in transparency log @ '%s'\nsee also https://rekor.tlog.dev/?uuid=%s", kind, rekorEntryUrl, uuid));
+        info(String.format("<< Created %s entry in transparency log @ '%s'\nsee also https://search.sigstore.dev/?uuid=%s", kind, rekorEntryUrl, uuid));
         return rekorEntryUrl;
     }
 

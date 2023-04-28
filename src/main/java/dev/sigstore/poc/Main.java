@@ -63,9 +63,9 @@ public class Main {
         System.out.println("signed " + size + " bytes, created " + files.size() + " .sig signature files for " + sizeSig + " bytes = " + (sizeSig / files.size()) + " bytes per sig");
 
         System.out.println("Recording signatures to sigstore...");
-        System.out.print("press ENTER to get Fulcio certificate:");
+        System.out.print("press ENTER to authenticate and get Fulcio certificate:");
         enter();
-        CertPath certs = sigstore.getFulcioCert(keypair);
+        CertPath certs = sigstore.getAuthAndFulcioCert(keypair);
 
         // save PEM encoded signing certificate to signing-certificate.pem file in root dir
         new Crypto().writeSigningCertToFile(certs, new File(dir, "signing-certificate.pem"));

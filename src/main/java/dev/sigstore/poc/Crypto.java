@@ -27,7 +27,7 @@ public class Crypto extends AbstractClient {
 
 
     public KeyPair generateKeyPair(String signingAlgorithm, String signingAlgorithmSpec) throws InvalidAlgorithmParameterException, NoSuchAlgorithmException {
-        info(String.format("generating keypair using %s with %s parameters", signingAlgorithm,
+        info(String.format("generating keypair (using %s with %s parameters)", signingAlgorithm,
                 signingAlgorithmSpec));
         KeyPairGenerator kpg = KeyPairGenerator.getInstance(signingAlgorithm);
         AlgorithmParameterSpec aps = null;

@@ -51,7 +51,7 @@ public class FulcioClient extends AbstractClient {
         req.getHeaders().set("Accept", "application/pem-certificate-chain");
         req.getHeaders().set("Authorization", "Bearer " + idToken);
 
-        info(String.format(">> requesting signing certificate from %s for public key and signed email address", fulcioPostUrl.toString()));
+        info(String.format(">> requesting signing certificate from %s for public key, OIDC token and signed email address", fulcioPostUrl.toString()));
         HttpResponse resp = req.execute();
         if (resp.getStatusCode() != 201) {
             throw new IOException(
