@@ -31,7 +31,7 @@ public class AbstractClient {
             throw new RuntimeException("invalid URL", e);
         }
     }
-    
+
     public HttpTransport getHttpTransport() {
         HttpClientBuilder hcb = ApacheHttpTransport.newDefaultHttpClientBuilder();
         if (!sslVerfication) {

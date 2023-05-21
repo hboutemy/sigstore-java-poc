@@ -33,7 +33,6 @@ public class Sigstore extends AbstractClient {
 
         OidcClient oidcClient = new OidcClient();
         String rawIdToken = oidcClient.getIDToken(); // do OIDC dance, get ID token and email
-        output("Got OIDC token " + rawIdToken + " for user email " + oidcClient.emailAddress);
 
         // sign email address with private key
         String signedEmail = new Crypto().signEmailAddress(oidcClient.emailAddress, keypair.getPrivate());
@@ -48,10 +47,10 @@ public class Sigstore extends AbstractClient {
     public CertPath getAuthAndFulcioCert(KeyPair keypair) throws GeneralSecurityException, IOException {
         OidcClient oidcClient = new OidcClient();
         String rawIdToken = oidcClient.getIDToken(); // do OIDC dance, get ID token and email
-    
+
         // sign email address with private key
         String signedEmail = new Crypto().signEmailAddress(oidcClient.emailAddress, keypair.getPrivate());
-    
+
         return getFulcioCert(rawIdToken, signedEmail, keypair.getPublic());
     }
 
@@ -59,7 +58,7 @@ public class Sigstore extends AbstractClient {
         // push to fulcio, get signing cert chain
         CertPath certs = new FulcioClient().getSigningCert(signedEmail, publicKey, rawIdToken);
 
-        output(String.format("%s", new Crypto().prettifySigningCert(certs)));
+        output(String.format("%s\n", new Crypto().prettifySigningCert(certs)));
         return certs;
     }
 

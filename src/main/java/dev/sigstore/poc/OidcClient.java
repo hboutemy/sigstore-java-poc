@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Base64;
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
 import com.google.api.client.auth.oauth2.BearerToken;
@@ -46,7 +47,7 @@ public class OidcClient extends AbstractClient {
         final String idTokenKey = "id_token";
 
         if (!oidcDeviceCodeFlow) {
-            info(String.format(">> getting OIDC token from %s with auth %s", oidcTokenURL.toString(), oidcAuthURL.toString()));
+            info(String.format(">> getting OIDC token for 'sigstore' audience from %s with auth %s", oidcTokenURL.toString(), oidcAuthURL.toString()));
             AuthorizationCodeFlow.Builder flowBuilder = new AuthorizationCodeFlow.Builder(
                     BearerToken.authorizationHeaderAccessMethod(), httpTransport, jsonFactory,
                     new GenericUrl(oidcTokenURL.toString()), new ClientParametersAuthentication(oidcClientID, null),
@@ -86,6 +87,16 @@ public class OidcClient extends AbstractClient {
                             parsedIdToken.getPayload().getIssuer(), emailAddress));
         }
         emailAddress = emailFromIDToken;
+
+        String[] parts = idTokenString.split("\\.");
+        String jwtHeader = parts[0];
+        String jwtPayload = parts[1];
+        String jwtSignature = parts[2];
+
+        output(String.format("OIDC token:\n- header = %s\n- payload = %s\n- signature = %s",
+            new String(Base64.getDecoder().decode(jwtHeader)),
+            new String(Base64.getDecoder().decode(jwtPayload)).replace(",", ",\n  "),
+            jwtSignature));
 
         info(String.format("<< received token for email %s", emailAddress));
 

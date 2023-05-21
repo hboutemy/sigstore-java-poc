@@ -40,7 +40,7 @@ public class RekorClient extends AbstractClient {
 
         ByteArrayOutputStream rekorStream = new ByteArrayOutputStream();
         rekorJsonContent.writeTo(rekorStream);
-        info(">> submitting to rekor " + rekorInstanceURL + "/api/v1/log/entries with payload:\n" + rekorStream.toString());
+        info(">> submitting to rekor " + rekorInstanceURL + "/api/v1/log/entries with payload: " + rekorStream.toString().replace(",", ",\n  "));
 
         GenericUrl rekorPostUrl = new GenericUrl(rekorInstanceURL + "/api/v1/log/entries");
         HttpRequest rekorReq = httpTransport.createRequestFactory().buildPostRequest(rekorPostUrl, rekorJsonContent);
